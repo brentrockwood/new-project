@@ -34,7 +34,7 @@ SRC_DIR="${NEW_PROJECT_SRC_DIR:-$HOME/src}"
 GITHUB_USER="${NEW_PROJECT_GITHUB_USER:-brentrockwood}"
 
 # Directory where this script lives (for finding devcontainer templates)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 
 # ── Flags ─────────────────────────────────────────────────────────────────────
 USE_REMOTE=false
@@ -265,7 +265,7 @@ git commit -m "Scaffold: initialise $PROJECT_NAME from prjTemplate
 Stack: $STACK
 Created by: new-project"
 
-git remote add origin "git@github.com:$GITHUB_REPO.git"
+git remote set-url origin "git@github.com:$GITHUB_REPO.git"
 git push -u origin main
 ok "Pushed main to origin"
 
