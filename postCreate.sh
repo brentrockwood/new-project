@@ -95,8 +95,22 @@ ok "gh CLI installed"
 # ── trufflehog ───────────────────────────────────────────────────────────────
 step "Installing trufflehog"
 
-curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh \
-  | sudo sh -s -- -b /usr/local/bin
+ARCH=$(uname -m)
+case "$ARCH" in
+  x86_64)  TH_ARCH="amd64" ;;
+  aarch64) TH_ARCH="arm64" ;;
+  armv7l)  TH_ARCH="armv7" ;;
+  *)       die "Unsupported architecture for trufflehog: $ARCH" ;;
+esac
+
+TRUFFLEHOG_VERSION="3.93.3"
+
+TRUFFLEHOG_URL="https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TH_ARCH}.tar.gz"
+
+curl -sSfL "$TRUFFLEHOG_URL" -o /tmp/trufflehog.tar.gz
+sudo tar -xz -C /usr/local/bin -f /tmp/trufflehog.tar.gz trufflehog
+rm /tmp/trufflehog.tar.gz
+
 ok "trufflehog installed ($(trufflehog --version 2>&1 | head -1))"
 
 # ── dotfiles ──────────────────────────────────────────────────────────────────
