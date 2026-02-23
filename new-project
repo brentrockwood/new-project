@@ -124,13 +124,15 @@ echo ""
 echo -e "  ${BOLD}Stack:${NC}"
 echo "    1) python"
 echo "    2) typescript"
+echo "    3) go"
 echo ""
-echo -e "  Choice [1/2]: \c"
+echo -e "  Choice [1/2/3]: \c"
 read -r STACK_CHOICE
 
 case "$STACK_CHOICE" in
   1) STACK="python" ;;
   2) STACK="typescript" ;;
+  3) STACK="go" ;;
   *) die "Invalid choice: $STACK_CHOICE" ;;
 esac
 
