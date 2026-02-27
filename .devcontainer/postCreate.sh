@@ -64,7 +64,11 @@ ok "zoxide installed"
 
 # ── fzf ──────────────────────────────────────────────────────────────────────
 step "Installing fzf"
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+if [[ ! -d ~/.fzf ]]; then
+  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+else
+  git -C ~/.fzf pull --rebase
+fi
 ~/.fzf/install --all --no-bash --no-fish
 ok "fzf installed"
 
@@ -160,14 +164,16 @@ case "$STACK" in
   go)
     # goimports: formatter and import organizer (mandatory in Go projects)
     go install golang.org/x/tools/cmd/goimports@latest
-    # golangci-lint: runs many linters in one pass
-    go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    # golangci-lint: use official installer to get a stable binary release
+    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh \
+      | sh -s -- -b "$(go env GOPATH)/bin"
     # gosec: security scanner (required by send 'er gate)
     go install github.com/securego/gosec/v2/cmd/gosec@latest
     # godoc: local documentation server
     go install golang.org/x/tools/cmd/godoc@latest
     # Add Go bin to PATH for this session (dotfiles will handle future shells)
-    export PATH="$PATH:$(go env GOPATH)/bin"
+    GOPATH="$(go env GOPATH)"
+    export PATH="$PATH:$GOPATH/bin"
     ok "goimports installed"
     ok "golangci-lint installed ($(golangci-lint --version))"
     ok "gosec installed ($(gosec --version 2>&1 | head -1))"

@@ -65,7 +65,7 @@ if [[ -z "$BODY" ]]; then
   if [[ -n "$FILE" ]]; then
     [[ -f "$FILE" ]] || { echo "Error: file not found: $FILE" >&2; exit 1; }
     BODY="$(cat "$FILE")"
-  else
+  elif [[ ! -t 0 ]]; then
     BODY="$(cat)"
   fi
 fi
@@ -74,7 +74,11 @@ fi
 
 # Auto-generated fields
 DATE="$(date -Iseconds)"
-HASH="$(echo -n "$BODY" | sha256sum | awk '{print $1}')"
+if command -v sha256sum &>/dev/null; then
+  HASH="$(echo -n "$BODY" | sha256sum | awk '{print $1}')"
+else
+  HASH="$(echo -n "$BODY" | shasum -a 256 | awk '{print $1}')"
+fi
 GIT_HASH="$(git rev-parse --short HEAD 2>/dev/null || echo 'no-git')"
 
 # Initialize file with header if it doesn't exist yet

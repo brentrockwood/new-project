@@ -141,7 +141,7 @@ fi
 
 Each entry in the context file follows this structure:
 
-```
+```text
 ---
 date: 2026-01-25T13:44:33+0000
 hash: KQjNYowLItHmgLl89cEJ4/5D+IMB3nkezcnIkaOTe2Q=

@@ -51,6 +51,7 @@ while [[ $# -gt 0 ]]; do
         *)
             echo "Error: Unknown option: $1" >&2
             usage
+            exit 1
             ;;
     esac
 done
@@ -84,8 +85,6 @@ fi
 
 # Generate overflow filename with timestamp
 TIMESTAMP=$(date +"%Y-%m-%dT%H_%M_%S%z")
-# Convert offset format from +0500 to -0500 or +0530 format
-TIMESTAMP=$(echo "$TIMESTAMP" | sed 's/\([+-]\)\([0-9][0-9]\)\([0-9][0-9]\)$/\1\2\3/')
 OVERFLOW_FILE="${FILE%.md}-${TIMESTAMP}.md"
 
 # Create temporary file for processing

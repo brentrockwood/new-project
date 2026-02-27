@@ -98,3 +98,25 @@ Branch: dob-v0.2
 
 EOF
 
+
+---
+date: 2026-02-27T22:32:17+0000
+hash: RaB9Vtf6Y3+iw2NwZIka73Sz1wNhvN+sNQQrL6grtK8=
+agent: Claude Code
+model: claude-sonnet-4-6
+startCommit: 1f41b3b9fa520848db001a9464f1da6a16a58b68
+---
+
+Applied remaining CodeRabbitAI PR #3 fixes (batch 2):
+- add-session-entry: added [[ \! -t 0 ]] guard before stdin read (prevents blocking on tty); added sha256sum/shasum portability fallback for macOS
+- read-context: added $# bounds check before accessing $2 for -n/-f options; simplified awk entry_count logic to unconditional entry_count++ in both awk blocks
+- postCreate.sh: switched golangci-lint to official installer (curl | sh); fixed SC2155 by separating GOPATH export from command substitution
+- dob parse_args: removed mkdir -p "$TARGET" (was creating directory in --dry-run mode); normalize path only if directory already exists
+- dob check_security: added early return if TARGET directory doesn't exist yet
+- dob step_open_pr: added --repo "$github_repo" flag so gh knows which repo to target
+- dob detected_files: added || true to grep pipeline to prevent pipefail exit when .git is the only entry
+- run: added set -euo pipefail and .venv existence check with informative error message
+Branch: dob-v0.2
+
+EOF
+

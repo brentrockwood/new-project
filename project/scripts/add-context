@@ -146,6 +146,6 @@ if [[ -f "$OUTPUT_FILE" ]]; then
     echo "" >> "$OUTPUT_FILE"
 fi
 
-echo "$ENTRY" >> "$OUTPUT_FILE"
+printf '%s\n' "$ENTRY" >> "$OUTPUT_FILE"
 
 echo "Entry added to $OUTPUT_FILE" >&2

@@ -28,7 +28,22 @@ set -euo pipefail
 DOB_VERSION="0.2.0"
 
 # ── Script location (for finding scripts/security_scan.sh) ───────────────────
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+# Resolve script directory portably — readlink -f is GNU-only and absent on macOS.
+if command -v greadlink &>/dev/null; then
+  SCRIPT_DIR="$(cd "$(dirname "$(greadlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+elif command -v realpath &>/dev/null; then
+  SCRIPT_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
+else
+  # Portable symlink-following loop; works on Linux and macOS with no extra tools.
+  _dob_src="${BASH_SOURCE[0]}"
+  while [[ -L "$_dob_src" ]]; do
+    _dob_dir="$(cd -P "$(dirname "$_dob_src")" && pwd)"
+    _dob_src="$(readlink "$_dob_src")"
+    [[ "$_dob_src" != /* ]] && _dob_src="$_dob_dir/$_dob_src"
+  done
+  SCRIPT_DIR="$(cd -P "$(dirname "$_dob_src")" && pwd)"
+  unset _dob_src _dob_dir
+fi
 
 # ── Colours ───────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
@@ -150,6 +165,14 @@ complete adoption manually or remove them before running dob"
 check_security() {
   CHECK_ORDER[security]=3
   CHECK_ACTION[security]=""
+
+  if [[ ! -d "$TARGET" ]]; then
+    CHECK_STATUS[security]="pass"
+    CHECK_MESSAGE[security]="security scan skipped (target does not exist yet)"
+    CHECK_REMEDIATION[security]=""
+    return
+  fi
+
   local scan_script="$SCRIPT_DIR/scripts/security_scan.sh"
 
   if [[ ! -f "$scan_script" ]]; then
@@ -431,7 +454,7 @@ step_write_project_md() {
 
   if [[ "$has_existing_code" == true ]]; then
     local detected_files
-    detected_files=$(ls "$TARGET" 2>/dev/null | grep -v '^\.git$' | paste -sd ' ')
+    detected_files=$(ls "$TARGET" 2>/dev/null | grep -v '^\.git$' | paste -sd ' ' || true)
     cat > "$TARGET/project/project.md" << EOF
 # ${project_name}
 
@@ -632,6 +655,7 @@ step_open_pr() {
 
   local pr_url
   pr_url=$(gh pr create \
+    --repo "$github_repo" \
     --base main \
     --head "$head_branch" \
     --title "DOB: Adopt ${project_name} into the DOA Framework" \
@@ -740,11 +764,10 @@ parse_args() {
     *)  TARGET="$(pwd)/$TARGET" ;;
   esac
 
-  # Create directory if it does not exist yet
-  mkdir -p "$TARGET"
-
-  # Now resolve symlinks / .. in the path
-  TARGET="$(cd "$TARGET" && pwd)"
+  # Normalize path only if the directory already exists; defer creation to migrate.
+  if [[ -d "$TARGET" ]]; then
+    TARGET="$(cd "$TARGET" && pwd)"
+  fi
 }
 
 # ── Main ──────────────────────────────────────────────────────────────────────

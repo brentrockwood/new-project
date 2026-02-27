@@ -33,10 +33,12 @@ EOF
 while [[ $# -gt 0 ]]; do
     case $1 in
         -n|--num)
+            [[ $# -ge 2 ]] || { echo "Error: -n/--num requires an argument" >&2; usage; }
             NUM_ENTRIES="$2"
             shift 2
             ;;
         -f|--file)
+            [[ $# -ge 2 ]] || { echo "Error: -f/--file requires an argument" >&2; usage; }
             CONTEXT_FILE="$2"
             shift 2
             ;;
@@ -84,12 +86,7 @@ if [[ "$SHOW_HEADERS_ONLY" == true ]]; then
     awk -v n="$NUM_ENTRIES" '
         # Entry starts with --- after EOF or at beginning
         /^---$/ && (NR == 1 || prev_line ~ /^(EOF)?$/) {
-            if (entry_count > 0) {
-                # Save previous header
-                entry_count++
-            } else {
-                entry_count = 1
-            }
+            entry_count++
             in_header = 1
             headers[entry_count] = $0
             next
@@ -123,11 +120,7 @@ else
     awk -v n="$NUM_ENTRIES" '
         # Entry starts with --- after EOF or at beginning
         /^---$/ && (NR == 1 || prev_line ~ /^(EOF)?$/) {
-            if (entry_count > 0 && in_entry) {
-                # Finish previous entry
-                entry_count++
-            }
-            if (entry_count == 0) entry_count = 1
+            entry_count++
             in_entry = 1
             entries[entry_count] = $0
             next
