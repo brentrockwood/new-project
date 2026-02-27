@@ -5,18 +5,18 @@
 #   new-project [--remote]
 #
 # Options:
-#   --remote    Use dh1 SSH provider instead of local Docker
+#   --remote   Use dh1 SSH provider instead of local Docker
 #
 # Prerequisites (must be in PATH):
 #   gh, git, devpod
 #
 # Configuration (set in environment or ~/.zshrc.local):
-#   NEW_PROJECT_TEMPLATE   GitHub repo to clone as template
-#                          Default: github.com/brentrockwood/prjTemplate
-#   NEW_PROJECT_SRC_DIR    Local directory for projects
-#                          Default: ~/src
-#   NEW_PROJECT_GITHUB_USER  GitHub username
-#                          Default: brentrockwood
+#   NEW_PROJECT_TEMPLATE    GitHub repo to clone as template
+#                           Default: github.com/brentrockwood/prjTemplate
+#   NEW_PROJECT_SRC_DIR     Local directory for projects
+#                           Default: ~/src
+#   NEW_PROJECT_GITHUB_USER GitHub username
+#                           Default: brentrockwood
 
 set -euo pipefail
 
@@ -53,11 +53,10 @@ for arg in "$@"; do
 done
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
-step() { echo -e "\n${BLUE}${BOLD}▶ $*${NC}"; }
-ok()   { echo -e "  ${GREEN}✓${NC} $*"; }
-warn() { echo -e "  ${YELLOW}⚠${NC}  $*"; }
-die()  { echo -e "\n${RED}✗ $*${NC}\n"; exit 1; }
-
+step()    { echo -e "\n${BLUE}${BOLD}▶ $*${NC}"; }
+ok()      { echo -e "  ${GREEN}✓${NC} $*"; }
+warn()    { echo -e "  ${YELLOW}⚠${NC} $*"; }
+die()     { echo -e "\n${RED}✗ $*${NC}\n"; exit 1; }
 confirm() {
   local prompt="$1"
   local response
@@ -69,13 +68,12 @@ confirm() {
 # ── Banner ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}╔══════════════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}║             new-project bootstrap               ║${NC}"
+echo -e "${BOLD}║          new-project bootstrap                   ║${NC}"
 echo -e "${BOLD}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
 
 # ── Preflight: tool checks ────────────────────────────────────────────────────
 step "Preflight checks"
-
 for tool in gh git devpod; do
   if command -v "$tool" &>/dev/null; then
     ok "$tool found ($(command -v "$tool"))"
@@ -92,14 +90,12 @@ fi
 
 # ── Project name ──────────────────────────────────────────────────────────────
 step "Project setup"
-
 echo -e "\n  ${BOLD}Project name${NC} (lowercase, hyphens only, no spaces): \c"
 read -r PROJECT_NAME
 
 if [[ -z "$PROJECT_NAME" ]]; then
   die "Project name cannot be empty."
 fi
-
 if [[ ! "$PROJECT_NAME" =~ ^[a-z][a-z0-9-]*$ ]]; then
   die "Project name must be lowercase letters, numbers, and hyphens only, and start with a letter."
 fi
@@ -110,7 +106,6 @@ GITHUB_REPO="$GITHUB_USER/$PROJECT_NAME"
 if [[ -d "$PROJECT_DIR" ]]; then
   die "Directory already exists: $PROJECT_DIR"
 fi
-
 if gh repo view "$GITHUB_REPO" &>/dev/null 2>&1; then
   die "GitHub repo already exists: github.com/$GITHUB_REPO"
 fi
@@ -137,11 +132,9 @@ case "$STACK_CHOICE" in
 esac
 
 DEVCONTAINER_SRC="$SCRIPT_DIR/devcontainers/$STACK/devcontainer.json"
-
 if [[ ! -f "$DEVCONTAINER_SRC" ]]; then
   die "devcontainer template not found: $DEVCONTAINER_SRC"
 fi
-
 ok "Stack: $STACK"
 
 # ── DevPod provider ───────────────────────────────────────────────────────────
@@ -170,7 +163,6 @@ fi
 
 # ── Clone template ────────────────────────────────────────────────────────────
 step "Cloning prjTemplate"
-
 mkdir -p "$SRC_DIR"
 git clone "https://$TEMPLATE_REPO.git" "$PROJECT_DIR"
 ok "Cloned to $PROJECT_DIR"
@@ -183,7 +175,7 @@ git init
 git checkout -b main
 ok "Fresh git history (main branch)"
 
-# ── Substitute project name tokens ───────────────────────────────────────────
+# ── Substitute project name tokens ────────────────────────────────────────────
 step "Substituting project name"
 
 # Files that contain the [Project Name] placeholder
@@ -205,32 +197,11 @@ for f in "${SUBSTITUTION_FILES[@]}"; do
     SUBSTITUTED=$((SUBSTITUTED + 1))
   fi
 done
-
 ok "Substituted project name in $SUBSTITUTED files"
-
-# ── Copy .devcontainer ────────────────────────────────────────────────────────
-step "Installing .devcontainer"
-
-mkdir -p .devcontainer
-cp "$DEVCONTAINER_SRC" .devcontainer/devcontainer.json
-cp "$SCRIPT_DIR/postCreate.sh" .devcontainer/postCreate.sh
-chmod +x .devcontainer/postCreate.sh
-ok ".devcontainer/ populated for stack: $STACK"
-
-# ── Update security_scan.sh with Trufflehog ──────────────────────────────────
-# The template's security_scan.sh already has the Trufflehog stanza;
-# it's included in new-project/scripts/ and overwrites the template version.
-if [[ -f "$SCRIPT_DIR/scripts/security_scan.sh" ]]; then
-  cp "$SCRIPT_DIR/scripts/security_scan.sh" scripts/security_scan.sh
-  chmod +x scripts/security_scan.sh
-  ok "security_scan.sh updated (includes Trufflehog)"
-fi
 
 # ── First context entry ───────────────────────────────────────────────────────
 step "Writing initial context entry"
-
 PROJECT_SCRIPTS="project/scripts"
-
 chmod +x "$PROJECT_SCRIPTS/add-context" \
          "$PROJECT_SCRIPTS/read-context" \
          "$PROJECT_SCRIPTS/rotate-context"
@@ -239,26 +210,17 @@ chmod +x "$PROJECT_SCRIPTS/add-context" \
   --agent "new-project" \
   --model "n/a" \
   --output "project/context.md" \
-  "Project created via new-project script.
-Stack: $STACK.
-GitHub: github.com/$GITHUB_REPO (private).
-DevPod provider: $([ "$USE_REMOTE" == true ] && echo "dh1 SSH" || echo "local Docker").
-Template: $TEMPLATE_REPO.
-Scaffold committed, initial-scaffold PR opened.
-Ready for first planning session."
-
+  "Project created via new-project script. Stack: $STACK. GitHub: github.com/$GITHUB_REPO (private). DevPod provider: $([ "$USE_REMOTE" == true ] && echo "dh1 SSH" || echo "local Docker"). Template: $TEMPLATE_REPO. Scaffold committed, initial-scaffold PR opened. Ready for first planning session."
 ok "Context entry written to project/context.md"
 
-# ── Create GitHub repo and push ───────────────────────────────────────────────
+# ── Create GitHub repo and push main ─────────────────────────────────────────
 step "Creating GitHub repo"
-
 gh repo create "$GITHUB_REPO" \
   --private \
   --description "$PROJECT_NAME" \
   --source . \
   --remote origin \
   --push=false
-
 ok "Created: github.com/$GITHUB_REPO"
 
 git add -A
@@ -273,12 +235,29 @@ ok "Pushed main to origin"
 
 # ── initial-scaffold branch ───────────────────────────────────────────────────
 step "Creating initial-scaffold branch"
-
 git checkout -b initial-scaffold
 ok "On branch: initial-scaffold"
 
+# Copy .devcontainer here — after branching — so main stays clean and this
+# commit is the distinct, reviewable unit of work on the PR.
+step "Installing .devcontainer"
+mkdir -p .devcontainer
+cp "$DEVCONTAINER_SRC" .devcontainer/devcontainer.json
+cp "$SCRIPT_DIR/postCreate.sh" .devcontainer/postCreate.sh
+chmod +x .devcontainer/postCreate.sh
+ok ".devcontainer/ populated for stack: $STACK"
+
+# The template's security_scan.sh already has the Trufflehog stanza;
+# overwrite it with the version from new-project/scripts/ which is kept
+# up to date separately.
+if [[ -f "$SCRIPT_DIR/scripts/security_scan.sh" ]]; then
+  cp "$SCRIPT_DIR/scripts/security_scan.sh" scripts/security_scan.sh
+  chmod +x scripts/security_scan.sh
+  ok "security_scan.sh updated (includes Trufflehog)"
+fi
+
 # Add .devcontainer as a distinct commit on this branch
-git add .devcontainer/
+git add .devcontainer/ scripts/security_scan.sh 2>/dev/null || git add .devcontainer/
 git commit -m "DevContainer: add $STACK devcontainer
 
 Includes postCreate.sh which installs:
@@ -290,10 +269,10 @@ Includes postCreate.sh which installs:
 git push -u origin initial-scaffold
 ok "Pushed initial-scaffold to origin"
 
-# ── send 'er ─────────────────────────────────────────────────────────────────
+# ── send 'er ──────────────────────────────────────────────────────────────────
 step "send 'er (security scan → confirm → PR)"
-
 echo ""
+
 SCAN_PASS=true
 if bash scripts/security_scan.sh; then
   ok "Security scan passed"
@@ -320,6 +299,7 @@ if [[ "$SCAN_PASS" == false ]]; then
   fi
 fi
 
+PR_URL=""
 if [[ "$SCAN_PASS" == true ]] || confirm "Open PR?"; then
   PR_URL=$(gh pr create \
     --base main \
@@ -338,7 +318,6 @@ fi
 
 # ── DevPod workspace ──────────────────────────────────────────────────────────
 step "Creating DevPod workspace"
-
 echo ""
 echo -e "  ${YELLOW}Building devcontainer — this may take a few minutes on first run.${NC}"
 echo ""
@@ -354,12 +333,12 @@ ok "DevPod workspace created: $PROJECT_NAME"
 # ── Done ──────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}${BOLD}╔══════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}${BOLD}║                  Project ready                  ║${NC}"
+echo -e "${GREEN}${BOLD}║              Project ready                       ║${NC}"
 echo -e "${GREEN}${BOLD}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "  ${BOLD}Project:${NC}  $PROJECT_NAME"
-echo -e "  ${BOLD}GitHub:${NC}   https://github.com/$GITHUB_REPO"
-echo -e "  ${BOLD}PR:${NC}       $PR_URL"
+echo -e "  ${BOLD}Project:${NC} $PROJECT_NAME"
+echo -e "  ${BOLD}GitHub:${NC}  https://github.com/$GITHUB_REPO"
+echo -e "  ${BOLD}PR:${NC}      ${PR_URL:-n/a}"
 echo ""
 echo -e "  ${BOLD}Connect:${NC}"
 echo ""
