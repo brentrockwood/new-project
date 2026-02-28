@@ -4,10 +4,9 @@
 
 set -euo pipefail
 
-if [[ ! -d .venv ]]; then
-  echo "Error: .venv not found. Run: python -m venv .venv && pip install -r requirements.txt" >&2
+if [[ ! -x .venv/bin/python ]]; then
+  echo "Error: .venv is missing or incomplete. Run: python -m venv .venv && .venv/bin/pip install -r requirements.txt" >&2
   exit 1
 fi
 
-source .venv/bin/activate
-python main.py run
+exec .venv/bin/python main.py run

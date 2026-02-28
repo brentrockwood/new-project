@@ -95,7 +95,7 @@ echo "" >> "$LOG_FILE"
 
 ```ini
 [Unit]
-Description=tmp
+Description=[project]
 After=network-online.target
 Wants=network-online.target
 
@@ -123,7 +123,7 @@ ReadWritePaths=/opt/[project]
 
 ```ini
 [Unit]
-Description=tmp Timer
+Description=[project] Timer
 Requires=[project].service
 
 [Timer]
@@ -186,7 +186,7 @@ sudo journalctl -u [project].service -p err
 
 `/etc/logrotate.d/[project]`:
 
-```
+```conf
 /var/log/[project]/*.log {
     daily
     rotate 30

@@ -154,3 +154,43 @@ All 5 scripts pass bash -n syntax check. Ready to commit and push.
 Branch: dob-v0.2
 
 ---
+
+## [2026-02-28T04:28:28+00:00] [prompt] Claude Code / claude-sonnet-4-6
+**git**: `1aab7b6` | **sha256**: `9b70207ae009`
+
+Coderabbit has more things to say. Take a look.
+
+---
+
+## [2026-02-28T04:30:19+00:00] [summary] Claude Code / claude-sonnet-4-6
+**git**: `1aab7b6` | **sha256**: `474bd7a30e99`
+
+Applied second batch of CodeRabbitAI PR #3 review fixes (8 items across 5 files):
+
+DEPLOYMENT.md:
+- Description=tmp → Description=[project] on lines 98 and 126 (systemd unit files)
+- Added 'conf' language tag to logrotate fenced code block (MD040)
+
+add-context:
+- usage() parameterized: exit "${1:-1}" so --help calls usage 0 (exit 0)
+- Added $2 bounds checks before accessing $2 for all option-value flags (--agent, --model, --session, --output, --file)
+
+rotate-context:
+- Added $2 bounds checks for --file, --size, --keep
+- Added numeric validation: SIZE_LIMIT and KEEP_ENTRIES must match ^[0-9]+$ after parsing
+
+run:
+- Changed venv check from [[ ! -d .venv ]] to [[ ! -x .venv/bin/python ]] (catches incomplete venvs)
+- Changed `source activate; python` to `exec .venv/bin/python` (avoids subshell, cleaner process model)
+
+dob step_open_pr:
+- Added ahead_count guard: skips gh pr create when head branch has 0 commits ahead of main
+- Prevents failure in the new-repo flow where initial-scaffold starts at the same commit as main
+
+Skipped per previous decisions:
+- dob TEMPLATE_REPO not consumed: architectural decision (inline templates)
+- project/context.md: append-only per DOA
+- project/project.md: write-locked per DOA
+Branch: dob-v0.2
+
+---

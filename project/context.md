@@ -120,3 +120,22 @@ Branch: dob-v0.2
 
 EOF
 
+
+---
+date: 2026-02-28T04:30:10+0000
+hash: 5WY6KcTRo84SxJg/ECbQdfdfeF9361cAPSiI385mfhk=
+agent: Claude Code
+model: claude-sonnet-4-6
+startCommit: 1aab7b6b83286df05fe8a7afa05d76f2f0ef1f5c
+---
+
+Applied second batch of CodeRabbitAI PR #3 fixes:
+- DEPLOYMENT.md: replaced Description=tmp with Description=[project] on lines 98/126; added 'conf' language tag to logrotate code block
+- add-context: usage() now accepts exit code param (default 1); --help calls usage 0; added $2 bounds checks for all option-value flags
+- rotate-context: added $2 bounds checks for --file/--size/--keep; added numeric validation for SIZE_LIMIT and KEEP_ENTRIES after arg parsing
+- run: check .venv/bin/python (not just .venv dir) for deterministic incomplete-venv detection; use exec for clean process replacement
+- dob step_open_pr: skip PR creation when head branch has 0 commits ahead of main (avoids gh pr create failure on new-repo flow where initial-scaffold is created from same commit as main)
+Branch: dob-v0.2
+
+EOF
+

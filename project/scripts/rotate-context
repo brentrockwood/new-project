@@ -34,14 +34,17 @@ EOF
 while [[ $# -gt 0 ]]; do
     case $1 in
         --file)
+            [[ $# -ge 2 ]] || { echo "Error: Missing value for --file" >&2; exit 2; }
             FILE="$2"
             shift 2
             ;;
         --size)
+            [[ $# -ge 2 ]] || { echo "Error: Missing value for --size" >&2; exit 2; }
             SIZE_LIMIT="$2"
             shift 2
             ;;
         --keep)
+            [[ $# -ge 2 ]] || { echo "Error: Missing value for --keep" >&2; exit 2; }
             KEEP_ENTRIES="$2"
             shift 2
             ;;
@@ -55,6 +58,10 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Validate numeric options
+[[ "$SIZE_LIMIT" =~ ^[0-9]+$ ]] || { echo "Error: --size must be a non-negative integer" >&2; exit 2; }
+[[ "$KEEP_ENTRIES" =~ ^[0-9]+$ ]] || { echo "Error: --keep must be a non-negative integer" >&2; exit 2; }
 
 # Validate file exists
 if [[ ! -f "$FILE" ]]; then

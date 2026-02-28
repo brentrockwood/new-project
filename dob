@@ -653,6 +653,13 @@ step_open_pr() {
   local head_branch
   head_branch=$(git -C "$TARGET" rev-parse --abbrev-ref HEAD)
 
+  local ahead_count
+  ahead_count=$(git -C "$TARGET" rev-list --count "main..$head_branch" 2>/dev/null || echo 0)
+  if [[ "$ahead_count" -eq 0 ]]; then
+    step_log "(no commits ahead of main on $head_branch; skipping PR creation)"
+    return 0
+  fi
+
   local pr_url
   pr_url=$(gh pr create \
     --repo "$github_repo" \

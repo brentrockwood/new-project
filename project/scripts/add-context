@@ -23,7 +23,7 @@ Optional:
   --session SESSION   Session identifier
   --output FILE       Output context file (default: context.md)
   --file FILE         Read body from file
-  
+
 Body input (priority order):
   1. Remaining arguments as body text
   2. --file to read from file
@@ -34,34 +34,39 @@ Examples:
   add-context --agent "CLI/1.0" --model "gpt-4" --file body.txt
   cat body.txt | add-context --agent "CLI/1.0" --model "gpt-4"
 EOF
-    exit 1
+    exit "${1:-1}"
 }
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
         --agent)
+            [[ $# -ge 2 ]] || { echo "Error: Missing value for --agent" >&2; exit 2; }
             AGENT="$2"
             shift 2
             ;;
         --model)
+            [[ $# -ge 2 ]] || { echo "Error: Missing value for --model" >&2; exit 2; }
             MODEL="$2"
             shift 2
             ;;
         --session)
+            [[ $# -ge 2 ]] || { echo "Error: Missing value for --session" >&2; exit 2; }
             SESSION="$2"
             shift 2
             ;;
         --output)
+            [[ $# -ge 2 ]] || { echo "Error: Missing value for --output" >&2; exit 2; }
             OUTPUT_FILE="$2"
             shift 2
             ;;
         --file)
+            [[ $# -ge 2 ]] || { echo "Error: Missing value for --file" >&2; exit 2; }
             BODY_FILE="$2"
             shift 2
             ;;
         --help|-h)
-            usage
+            usage 0
             ;;
         *)
             # Remaining args are body text
