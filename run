@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Convenience script for local development runs.
+# Adjust the command below to match your project's entry point.
+
+set -euo pipefail
+
+if [[ ! -x .venv/bin/python ]]; then
+  echo "Error: .venv is missing or incomplete. Run: python -m venv .venv && .venv/bin/pip install -r requirements.txt" >&2
+  exit 1
+fi
+
+exec .venv/bin/python main.py run
