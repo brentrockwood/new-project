@@ -68,6 +68,15 @@ while [[ $# -gt 0 ]]; do
         --help|-h)
             usage 0
             ;;
+        --)
+            shift
+            BODY_TEXT="$*"
+            break
+            ;;
+        -*)
+            echo "Error: Unknown option: $1" >&2
+            exit 1
+            ;;
         *)
             # Remaining args are body text
             BODY_TEXT="$*"

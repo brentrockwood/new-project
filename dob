@@ -653,17 +653,23 @@ step_open_pr() {
   local head_branch
   head_branch=$(git -C "$TARGET" rev-parse --abbrev-ref HEAD)
 
+  # Detect the repo's actual default branch; fall back to "main".
+  local base_branch
+  base_branch=$(git -C "$TARGET" symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null \
+    | sed 's@^origin/@@')
+  [[ -z "$base_branch" ]] && base_branch="main"
+
   local ahead_count
-  ahead_count=$(git -C "$TARGET" rev-list --count "main..$head_branch" 2>/dev/null || echo 0)
+  ahead_count=$(git -C "$TARGET" rev-list --count "${base_branch}..$head_branch" 2>/dev/null || echo 0)
   if [[ "$ahead_count" -eq 0 ]]; then
-    step_log "(no commits ahead of main on $head_branch; skipping PR creation)"
+    step_log "(no commits ahead of ${base_branch} on $head_branch; skipping PR creation)"
     return 0
   fi
 
   local pr_url
   pr_url=$(gh pr create \
     --repo "$github_repo" \
-    --base main \
+    --base "$base_branch" \
     --head "$head_branch" \
     --title "DOB: Adopt ${project_name} into the DOA Framework" \
     --body "Initial DOA framework scaffold.

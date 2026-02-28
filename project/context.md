@@ -139,3 +139,19 @@ Branch: dob-v0.2
 
 EOF
 
+
+---
+date: 2026-02-28T04:51:42+0000
+hash: w67yZFxlhP9L8tyGqJLLCfNq8e+eRw/wjxzxLa9RKuM=
+agent: Claude Code
+model: claude-sonnet-4-6
+startCommit: 164631e7516e4df582d953560a933feef8bf5643
+---
+
+Applied third batch of CodeRabbitAI PR #3 fixes:
+- dob step_open_pr: replaced hardcoded 'main' with dynamic base branch detection via git symbolic-ref --short refs/remotes/origin/HEAD (falls back to 'main' if unset); affects ahead_count check, skip log message, and --base flag — supports repos with master/develop/etc. as default branch
+- add-context: added -- (end-of-options) handler and -*) handler to reject mistyped flags as errors instead of silently treating them as body text
+Branch: dob-v0.2
+
+EOF
+

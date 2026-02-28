@@ -194,3 +194,33 @@ Skipped per previous decisions:
 Branch: dob-v0.2
 
 ---
+
+## [2026-02-28T04:50:44+00:00] [prompt] Claude Code / claude-sonnet-4-6
+**git**: `164631e` | **sha256**: `d6b53e870ec3`
+
+More things from Coderabbit. One major that I would tend to agree with (main vs another default branch).
+
+---
+
+## [2026-02-28T04:51:50+00:00] [summary] Claude Code / claude-sonnet-4-6
+**git**: `164631e` | **sha256**: `9a2f2389b9e2`
+
+Applied third batch of CodeRabbitAI PR #3 review fixes (2 items):
+
+dob step_open_pr (major — agreed with user):
+- Replaced three hardcoded "main" references with a dynamic base_branch variable
+- Detection: git symbolic-ref --quiet --short refs/remotes/origin/HEAD | sed 's@^origin/@@'
+- Falls back to "main" if the remote HEAD pointer is unset (new repos, shallow clones, etc.)
+- Fixes ahead_count check, skip log message, and gh pr create --base flag
+- Now correctly handles repos with master, develop, or any other default branch
+
+add-context:
+- Added "--" end-of-options handler: shift then treat remaining args as body text
+- Added "-*" catch-all: echo error and exit 1 for unknown flags (e.g. --sessoin)
+- Previously mistyped flags fell silently into the body-text branch
+
+Skipped (no new actionable items beyond these two):
+- All other new comments were marked ✅ Addressed in 164631e by CodeRabbitAI
+Branch: dob-v0.2
+
+---
