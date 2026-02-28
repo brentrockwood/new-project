@@ -374,7 +374,7 @@ print_report() {
   # Count hard fails
   local fail_count=0
   for check in "${check_order[@]}"; do
-    [[ "${CHECK_STATUS[$check]}" == "fail" ]] && ((fail_count++))
+    [[ "${CHECK_STATUS[$check]}" == "fail" ]] && ((++fail_count))
   done
 
   if [[ $fail_count -gt 0 ]]; then
@@ -797,7 +797,7 @@ main() {
   # Count hard fails
   local fail_count=0
   for check in uncommitted partial_adoption security; do
-    [[ "${CHECK_STATUS[$check]}" == "fail" ]] && ((fail_count++))
+    [[ "${CHECK_STATUS[$check]}" == "fail" ]] && ((++fail_count))
   done
 
   if [[ $fail_count -gt 0 ]]; then

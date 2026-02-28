@@ -224,3 +224,29 @@ Skipped (no new actionable items beyond these two):
 Branch: dob-v0.2
 
 ---
+
+## [2026-02-28T05:21:33+00:00] [prompt] Claude Code / claude-sonnet-4-6
+**git**: `b52f793` | **sha256**: `ba8668f41cc7`
+
+Some criticals popped up. Take another look.
+
+---
+
+## [2026-02-28T05:22:14+00:00] [summary] Claude Code / claude-sonnet-4-6
+**git**: `b52f793` | **sha256**: `6daeb282fac6`
+
+Fixed two critical ((fail_count++)) bugs in dob (lines 377 and 800):
+
+Root cause: In bash, ((n++)) returns the pre-increment value. When fail_count==0,
+((fail_count++)) evaluates to 0 (falsy) → exit code 1 → set -e kills the script
+on the very first failing check, before the report is printed.
+
+Fix: changed both occurrences to ((++fail_count)), which pre-increments and
+evaluates to the new value (1 = truthy → exit code 0). Safe under set -e.
+
+Both occurrences were in the same pattern:
+  [[ "${CHECK_STATUS[$check]}" == "fail" ]] && ((fail_count++))
+→ [[ "${CHECK_STATUS[$check]}" == "fail" ]] && ((++fail_count))
+Branch: dob-v0.2
+
+---

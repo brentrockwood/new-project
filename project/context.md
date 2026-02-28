@@ -155,3 +155,18 @@ Branch: dob-v0.2
 
 EOF
 
+
+---
+date: 2026-02-28T05:22:14+0000
+hash: dH2+DjPxJIkBnGjG8aOrY79TFLI9+8BwRUyZ7ddoHd8=
+agent: Claude Code
+model: claude-sonnet-4-6
+startCommit: b52f79341d707eabc5336826ad2ca5785fdd57a5
+---
+
+Fixed critical set -e / ((fail_count++)) bug in dob:
+((fail_count++)) post-increments from 0 to 1 but evaluates to 0 (the old value) which is falsy — bash exits under set -e. Fixed both occurrences (lines 377, 800) to ((++fail_count)) which pre-increments and evaluates to 1 (truthy). Would have caused dob to silently exit on the very first failing check instead of printing the report.
+Branch: dob-v0.2
+
+EOF
+
