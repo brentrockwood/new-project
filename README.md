@@ -1,3 +1,6 @@
+> # DEPRECATED: This repository is no longer maintained. Please see [doa-framework](https://github.com/brentrockwood/doa-framework) instead.
+---
+
 # new-project
 
 Personal project bootstrapping tool. One command to go from nothing to a
